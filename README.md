@@ -23,7 +23,7 @@ The **cuRne**t package depends on the following R-packages:
 The **cuRnet** package and its dependencies can be installed on Linux by running the following commands in the R console.
 ```
 install.packages("devtools", dep = TRUE)
-devtools::install_bitbucket("cuRnet/cuRnet")
+devtools::install_github("mgm79/cuRnet")
 ```
 
 
