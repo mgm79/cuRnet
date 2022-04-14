@@ -30,6 +30,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <nvToolsExt.h>
 #include "../include/cuda_util.cuh"
 
+#define THRUST_IGNORE_CUB_VERSION_CHECK
+
 namespace cuda_util {
 
 void memCheckCUDA(size_t Req) {
