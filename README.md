@@ -1,4 +1,5 @@
 # cuRnet
+
 > an R package for graph traversing on GPU.
 
 ***
@@ -7,7 +8,6 @@
 It makes available GPU solutions to R end-users in a transparent way, by including basic data structures for representing graphs,
 and parallel implementation of of BFS (Breadth-First Search), SCC (Strongly Connected Components) and SSSP (Single-Source Shortest Paths) customized for biological network analysis on GPUs (Busato and Bombieri, 2016).
 
-
 **cuRnet** has been tested on different PPI networks provided by the [STRINGdb](https://bioconductor.org/packages/release/bioc/html/STRINGdb.html) R package.
 **cuRnet** outperformed the standard sequential counterpart provided by the [iGraph](http://igraph.org/r/) R package.
 
@@ -15,17 +15,16 @@ and parallel implementation of of BFS (Breadth-First Search), SCC (Strongly Conn
 
 ## Package Installation and Dependencies
 
-
 The **cuRne**t package depends on the following R-packages: 
 
 * Rcpp
 
 The **cuRnet** package and its dependencies can be installed on Linux by running the following commands in the R console.
+
 ```
 install.packages("devtools", dep = TRUE)
 devtools::install_github("mgm79/cuRnet")
 ```
-
 
 the **cuRnet** R package requires GP-GPU hardware and the Nvidia CUDA toolkit installed on your machine.
 Please visit the [Nvidia CUDA website](https://www.geforce.com/hardware/technology/cuda)
@@ -37,7 +36,74 @@ The **cuRnet** software requires a GP-GPU hardware with compute capabilities equ
 Visit also the task of CRAN related to [High-Performance and Parallel Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html).
 
 
-***
+
+## cuRnet Installation on Ubuntu 20.04
+
+cuRnet has been fixed to install with the recent version of compilers on recent Ubuntu releases. Although it should work for other recent versions of Ubuntu linux, here are the steps which can be taken to install cuRnet on Ubuntu 20.04.
+
+### Installation from locally cloned repository
+
+Install dependencies and R by:
+
+```shell
+sudo apt install build-essential libcurl4-openssl-dev libxml2-dev libssl-dev libboost-dev
+sudo apt-get install r-base-core
+```
+
+Clone the repository and note down the location.
+
+```shell
+git clone https://github.com/imranashraf/cuRnet
+```
+
+Let us assume, this repository was cloned at `/data/repositories/cuRnet`. We will need this path later.
+
+Install R dependencies by starting R and typing the following on R prompt
+
+```
+install.packages("Rcpp")
+```
+
+Finally, install cuRnet by typing the following on R prompt:
+
+    install.packages("/data/repositories/cuRnet", repos = NULL, type="source")
+
+### Installation directly from github repository
+
+cuRnet can be installed directly from github repository as well by using `devtools` package. 
+
+Install dependencies and R by:
+
+```shell
+sudo apt install build-essential libcurl4-openssl-dev libxml2-dev libssl-dev libboost-dev
+sudo apt-get install r-base-coreInstall 
+```
+
+On the R prompt, type
+
+    install.packages("Rcpp")
+    install.packages("devtools")
+    library(devtools)
+
+Finally, install cuRnet by typing the following on R prompt:
+
+```
+install_github("imranashraf/cuRnet")
+```
+
+### Extra requirements to run examples
+
+In order to run the following examples, some extra packages need to be installed. This can be done by typing the following on R prompt
+
+    install.packages("igraph")
+    install.packages("BiocManager")
+    BiocManager::install("STRINGdb")
+
+### Uninstall cuRnet
+
+cuRnet can be uninstall by typing the following on R prompt
+
+    remove.packages("cuRnet")
 
 ## Example: creating a cuRnet graph object
 
@@ -72,6 +138,7 @@ Identifires of vertices are represented as characters, and score must be positiv
 library(igraph)
 x <- read.table("my_file.csv", header=TRUE)
 ```
+
 The input CSV file has an header row specifing column names as *from*, *to* and *score*.
 
 ```
@@ -79,7 +146,9 @@ x$from <- as.character(x$from)
 x$to <- as.character(x$to)
 x$score <- abs(x$score)
 ```
+
 The cuRnet graph can be created from the loaded dataframe.
+
 ```
 my_graph <- cuRnet_graph(x)
 ```
@@ -95,6 +164,7 @@ Every row corresponds to a specific source vertex, and row cells report the dept
 
 The following example shows how to perfrom BFS.
 The graph is created randomly by using the *iGraph* Power-Law random generation model.
+
 ```
 library(igraph)
 rg <- sample_fitness_pl(100, 1000, 2.2, 2.3)
@@ -103,12 +173,16 @@ colnames(cdf) <- c("from", "to")
 library(cuRnet)
 cg <- cuRnet_graph(cdf)
 ```
+
 The example performs BFS by choosing the first 20 vertices of the graph as soruce vertices.
+
 ```
 sources <- union(cdf$from, cdf$to)[1:20]
 bfs <- cuRnet_bfs(cg, sources)
 ```
+
 Each returned row correspond to a given source vertex.
+
 ```
 bfs[1,]
 bfs[2,]
@@ -119,24 +193,25 @@ bfs[20,]
 
 ## Example: Single-Source Shortest Paths (SSSP) from a set of vertices.
 
-
 The following example shows how to calculate distances and predecessors from a set of source vertices.
-
 
 The examples uses the human (code 9606) PPI (Protein-Protein Interaction) network downloaded via the STRINGdb R package (version 10).
 STRING networks have scores ranging from 0 to 1000. A threshold of 900 is used.
+
 ```
 library(STRINGdb)
 ss <- STRINGdb$new( version="10", species=9606, score_threshold=900)
 ```
 
 The network data is available as an *iGraph* object.
+
 ```
 library(igraph)
 g <- ss$get_graph()
 ```
 
 For the example, the first 10 vertices of the PPI are choosen as source vertex.
+
 ```
 from <- V(g)$name[1:10]
 ```
@@ -145,6 +220,7 @@ from <- V(g)$name[1:10]
 Each row reports the source and destination vertices of the edges and the weight/costs of it.
 Weights can be eigther integer or decimal values.
 For this example, the combined_score of the iGraph object is firstly normalized and the is is used as weight.
+
 ```
 x <- data.frame("from" = ends(g,E(g))[,1], 
                 "to" = ends(g,E(g))[,2], 
@@ -153,6 +229,7 @@ x <- data.frame("from" = ends(g,E(g))[,1],
 
 **cuRnet** functions are available by loading the *cuRnet* library.
 The **cuRnet_sssp** function takes in input the data frame of the edges and the list of source vertices.
+
 ```
 library(cuRnet)
 cg <- cuRnet_graph(x)
@@ -163,12 +240,14 @@ The **cuRnet_sssp** function returns  a list of two NumericMatrix indexed as *"d
 Matrix rows are source vertices and colums are network vertices. 
 A entry fo the *distance* matrix is the distance along the shortest path from the source to the destination vertex.
 A entry fo the *predecessors* matrix is a minimal predecessor of the vertex and along the shortest path.
+
 ```
 dists = ret[["distances"]]
 preds = ret[["predecessors"]]
 ```
 
 The fowlling lines list distances and predecessors from the first source vertex to every other vertex of the input PPI.
+
 ```
 dists[1,]
 preds[1,]
@@ -181,6 +260,7 @@ preds[1,]
 **cuRnet** provides two different funcitons for SSSP computation, *cuRnet_sssp* and *cuRnet_sssp_dists*.
 Given a network and a set of source vertices, the **cuRnet_sssp_dists** function computes only distance values and ignore predecessors.
 The function is intended to be faster than the complete one (*cuRnet_sssp*) and to be used for such applications where predecessor information is not needed.
+
 ```
 library(STRINGdb)
 ss <- STRINGdb$new( version="10", species=9606, score_threshold=900)
@@ -192,18 +272,22 @@ x <- data.frame("from" = ends(g,E(g))[,1],
                 "score" = E(g)$combined_score/1000)
 library(cuRnet)
 cg <- cuRnet_graph(x)
-ret <- cuRnet_sssp_dists(sg from)
+ret <- cuRnet_sssp_dists(cg, from)
 ```
+
 The *cuRnet_sssp_dists* function takes the same arguments of *cuRnet_sssp* but returns just one NumericMatrix.
 the returned matrix corresponds to the one returned by *cuRnet_sssp* and  indexed as *"distances"*.
 
 The following line of code prints out distances along shortest paths from the first source vertex to every other vertex in the input network
+
 ```
 ret[1,]
 ```
+
 ***
 
 ## REFERENCES
+
 ```
 Busato, Federico, and Nicola Bombieri. 2016. “‘An Efficient Implementation of the Bellman-Ford Algorithm for Kepler Gpu Architectures’.” IEEE Transactions on Parallel and Distributed System 27 (8). IEEE: 2222–3.
 ```
