@@ -39,21 +39,37 @@ Visit also the task of CRAN related to [High-Performance and Parallel Computing]
 
 ## cuRnet Installation on Ubuntu 20.04
 
-cuRnet has been fixed to install with the recent version of compilers on recent Ubuntu releases. Although it should work for other recent versions of Ubuntu linux, here are the steps which can be taken to install cuRnet on Ubuntu 20.04.
+cuRnet has recently been fixed to install with the recent version of compilers on recent Ubuntu releases. Although it should work for other recent versions of Ubuntu linux, here are the steps which can be taken to install cuRnet on Ubuntu 20.04.
 
 ### Installation from locally cloned repository
 
-Install dependencies and R by:
+Install nvcc compiler in cuda toolkit by:
+
+```
+sudo apt install nvidia-cuda-toolkit
+```
+
+cuRnet expects that cuda is installed in the default location of `/usr/local/cuda` therefore, nvcc is available at `/usr/local/cuda/bin`. If you have installed cuda in a non-standard location, or you have more than one cuda installed, for instance in `/opt/cuda`, you can select the desired version of cuda by setting `CUDA_HOME` environment variable by:
+
+```
+export CUDA_HOME=/opt/cuda
+```
+
+Install rest of the dependencies:
 
 ```shell
 sudo apt install build-essential libcurl4-openssl-dev libxml2-dev libssl-dev libboost-dev
-sudo apt-get install r-base-core
+```
+Install R by:
+
+```shell
+sudo apt install r-base-core
 ```
 
 Clone the repository and note down the location.
 
 ```shell
-git clone https://github.com/imranashraf/cuRnet
+git clone https://github.com/mgm79/cuRnet.git
 ```
 
 Let us assume, this repository was cloned at `/data/repositories/cuRnet`. We will need this path later.
@@ -66,7 +82,9 @@ install.packages("Rcpp")
 
 Finally, install cuRnet by typing the following on R prompt:
 
-    install.packages("/data/repositories/cuRnet", repos = NULL, type="source")
+```
+install.packages("/data/repositories/cuRnet", repos = NULL, type="source")
+```
 
 ### Installation directly from github repository
 
@@ -81,23 +99,27 @@ sudo apt-get install r-base-coreInstall
 
 On the R prompt, type
 
-    install.packages("Rcpp")
-    install.packages("devtools")
-    library(devtools)
+```
+install.packages("Rcpp")
+install.packages("devtools")
+library(devtools)
+```
 
 Finally, install cuRnet by typing the following on R prompt:
 
 ```
-install_github("imranashraf/cuRnet")
+install_github("mgm79/cuRnet")
 ```
 
 ### Extra requirements to run examples
 
 In order to run the following examples, some extra packages need to be installed. This can be done by typing the following on R prompt
 
-    install.packages("igraph")
-    install.packages("BiocManager")
-    BiocManager::install("STRINGdb")
+```
+install.packages("igraph")
+install.packages("BiocManager")
+BiocManager::install("STRINGdb")
+```
 
 ### Uninstall cuRnet
 
@@ -105,13 +127,16 @@ cuRnet can be uninstall by typing the following on R prompt
 
     remove.packages("cuRnet")
 
+# Examples
+The following examples are also available as R scripts in `examples/` directory.
+
 ## Example: creating a cuRnet graph object
 
 **cuRnet** algorithms run over a **cuRnet** graph object that can be created from a 3-column dataframe.
 The dataframe represents edges in the form (source vertex, destination vertex, weight). 
 The first two colums are of type *charatcter*, instead weights are of type *numeric*.
 Weight column is optional, however it has to be specified for algorithms that require the information, such as SSSP.
-<br>
+
 The following example shows how to create a cuRnet graph object starting from an *iGraph* one.
 
 ```
@@ -127,9 +152,8 @@ my_graph <- cuRnet_graph(cdf)
 
 ## Example: reading networks from a CSV file
 
-Dataframe objects to be used as input for **cuRnet** can be built from values stored in a textual CSV file.
-The following example shows how to do it.
-<br><br>
+Dataframe objects to be used as input for **cuRnet** can be built from values stored in a textual CSV file. The following example shows how to do it.
+
 The input file *my_file.csv* is a CSV file having 3 columns named *from*, *to* and *score*.<br>
 The first line of the CSV file is an header reporting column names.<br>
 Identifires of vertices are represented as characters, and score must be positive values.<br>
