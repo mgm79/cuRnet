@@ -1,3 +1,5 @@
+#define THRUST_IGNORE_CUB_VERSION_CHECK
+
 #include "cudaGraph.cuh"
 
 #include "../../../timer.h"
